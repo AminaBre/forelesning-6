@@ -27,7 +27,7 @@
         try {
           const activity = await fetchActivity();
           showActivity(activity);
-          showSavedActivity();
+          showSavedActivities();
         } catch {
           console.log("Klarte ikke hente aktivitet...");
         }
@@ -57,18 +57,22 @@
       }
 
       function saveActivity(activity) {
+        //Her sjekker vi om det er noe i localStorage fra før, hvis ikke legger vi bare et tomt array inn i activities.
         activities = JSON.parse(localStorage.getItem("savedActivities")) || [];
 
         activities.push(activity);
 
         localStorage.setItem("savedActivities", JSON.stringify(activities));
 
-        showSavedActivity();
+        showSavedActivities();
       }
 
-      function showSavedActivity() {
+      function showSavedActivities() {
         console.log("Lagre aktivitet");
         activities = JSON.parse(localStorage.getItem("savedActivities")) || [];
+
+        savedActivitiesContainer.innerHTML = "";
+        //Tømmer containeren før jeg fyller den på nytt, så vi ikke får dupliseringer
 
         activities.forEach((activity, index) => {
           const savedActivityCard = document.createElement("div");
@@ -80,9 +84,26 @@
           savedActivityCard.style.height = "200px";
           savedActivityCard.style.border = "1px solid black";
 
-          savedActivityCard.append(savedText);
+          const deleteBtn = document.createElement("button");
+          deleteBtn.innerHTML = "Slett";
+          deleteBtn.addEventListener("click", function () {
+            deleteActivity(index);
+          });
+
+          savedActivityCard.append(savedText, deleteBtn);
           savedActivitiesContainer.append(savedActivityCard);
         });
+      }
+
+      function deleteActivity(index) {
+        const activities =
+          JSON.parse(localStorage.getItem("savedActivities")) || [];
+
+        activities.splice(index, 1);
+
+        //Vi må gjøre om til en string, siden localStorage kun opererer med strings.
+        localStorage.setItem("savedActivities", JSON.stringify(activities));
+        showSavedActivities();
       }
     </script>
   </body>
